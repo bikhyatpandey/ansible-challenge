@@ -3,7 +3,7 @@
 1. Ansible installed in your system
 2. python3 is installed in your system
 3. boto3 is installed in your system
-4. AWS cli is installed and you have the aws login credentials to a user with ec2 administration permission
+4. AWS cli is installed and you have the aws login credentials to a user with ec2 and VPC administration permission
 5. Clone the git repo
 6. navigate inside the repo
 7. Create a vault file inside group_vars folder and name it aws_credentials.yml and fill it with your aws access and secret key. Example below
