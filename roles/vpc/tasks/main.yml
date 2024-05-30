@@ -1,0 +1,56 @@
+---
+- name: Create VPC
+  amazon.aws.ec2_vpc_net:
+    name: "ansible_vpc"
+    cidr_block: "10.0.0.0/16"
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    state: present
+  register: vpc
+
+- name: Ensure VPC is created
+  ansible.builtin.assert:
+    that:
+      - vpc.vpc.id is defined
+    fail_msg: "VPC creation failed, vpc_id is not defined."
+
+- name: Create subnet
+  amazon.aws.ec2_vpc_subnet:
+    vpc_id: "{{ vpc.vpc.id }}"
+    cidr: "10.0.1.0/24"
+    az: "{{ aws_region }}a"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    state: present
+  register: subnet
+
+- name: Ensure subnet is created
+  ansible.builtin.assert:
+    that:
+      - subnet.subnet.id is defined
+    fail_msg: "Subnet creation failed, subnet id is not defined."
+
+- name: Create Internet Gateway
+  amazon.aws.ec2_vpc_igw:
+    vpc_id: "{{ vpc.vpc.id }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ aws_region }}"
+    state: present
+  register: igw
+
+- name: Create public subnet route table
+  amazon.aws.ec2_vpc_route_table:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    vpc_id: "{{ vpc.vpc.id }}"
+    region: "{{ aws_region }}"
+    state: present
+    tags:
+      Name: "ansible_route_table"
+    subnets: ["{{ subnet.subnet.id }}"]
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ igw.gateway_id }}"
+  register: route_table

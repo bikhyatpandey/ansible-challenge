@@ -1,0 +1,61 @@
+---
+- name: Create key pair
+  amazon.aws.ec2_key:
+    name: "ansible_key"
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    state: present
+  register: keypair
+
+- name: Save key pair to file
+  ansible.builtin.copy:
+    content: "{{ keypair.key.private_key }}"
+    dest: "./ansible_key.pem"
+    mode: '0400'
+
+- name: Create security group
+  amazon.aws.ec2_security_group:
+    name: "ansible_challenge_sg"
+    description: "Allow HTTP, HTTPS, and SSH"
+    vpc_id: "{{ vpc.vpc.id }}"
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    rules:
+      - proto: tcp
+        ports:
+          - 22
+          - 80
+          - 443
+        cidr_ip: 0.0.0.0/0
+    state: present
+  register: sg
+
+- name: Launch EC2 instances
+  amazon.aws.ec2_instance:
+    key_name: "ansible_key"
+    instance_type: "t2.micro"
+    image_id: "ami-0d6857b844e855670"
+    wait: true
+    security_groups: "{{ sg.group_name }}"
+    subnet_id: "{{ subnet.subnet.id }}"
+    region: "{{ aws_region }}"
+    network:
+      assign_public_ip: true
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    tags:
+      Name: "{{ item }}"
+      Env: "ansible"
+  with_items:
+    - "server_1"
+    - "server_2"
+  register: ec2_instances
+
+- name: Wait for instancfes to come up
+  ansible.builtin.wait_for:
+    timeout: 180
+
+- name: Refresh inventory after provisioning
+  ansible.builtin.meta: refresh_inventory

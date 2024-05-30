@@ -1,1 +1,6 @@
 ---
+include_vars: aws_credentials.yml
+aws_region: "ap-southeast-2"
+site_1: https://raw.githubusercontent.com/Metroxe/one-html-page-challenge/master/entries/memory-game.html
+site_2: https://raw.githubusercontent.com/Metroxe/one-html-page-challenge/master/entries/building.html
+dest_path: /var/www/html/index.html

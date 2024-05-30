@@ -1,0 +1,74 @@
+---
+- name: Install common packages
+  ansible.builtin.yum:
+    name:
+      - git
+      - chrony
+      - httpd
+      - openssl
+      - mod_ssl
+      - python3-firewall
+      - python3-pip
+      - firewalld
+    state: present
+
+- name: Start and enable chrony
+  ansible.builtin.systemd:
+    name: chronyd
+    state: started
+    enabled: true
+
+- name: Set timezone to Sydney
+  community.general.timezone:
+    name: Australia/Sydney
+
+- name: Start and enable httpd
+  ansible.builtin.systemd:
+    name: httpd
+    state: started
+    enabled: true
+
+- name: Install necessary Python packages
+  ansible.builtin.pip:
+    name: firewall
+    state: present
+    executable: pip3
+
+- name: Start and enable firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: Ensure firewall allows HTTP and HTTPS
+  ansible.builtin.firewalld:
+    service: "{{ item }}"
+    permanent: true
+    state: enabled
+  loop:
+    - http
+    - https
+
+- name: Reload firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: reloaded
+
+- name: Configure Apache to listen on ports 80 and 443
+  ansible.builtin.lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '^#?Listen'
+    line: |
+      Listen 80
+      Listen 443
+    state: present
+
+- name: Copy ssl script to server
+  ansible.builtin.copy:
+    src: ../files/sslconf.sh
+    dest: /tmp/sslconf.sh
+    mode: 0755
+
+- name: Deploy the ssl certificate
+  ansible.builtin.command:
+    cmd: /tmp/sslconf.sh

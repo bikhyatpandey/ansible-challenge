@@ -1,0 +1,10 @@
+---
+- name: Download and move html file to correct folder
+  ansible.builtin.get_url:
+    url: "{{ site_2 }}"
+    dest: "{{ dest_path }}"
+
+- name: Restart httpd service
+  ansible.builtin.service:
+    name: httpd
+    state: restarted

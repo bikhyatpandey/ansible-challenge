@@ -1,1 +1,29 @@
 ---
+- name: Deploy Websites on AWS
+  hosts: localhost
+  vars_files: ./group_vars/aws_credentials.yml
+  gather_facts: false
+  roles:
+    - vpc
+    - ec2
+
+- name: Apply common configuration
+  hosts: tags_Name_server_1, tags_Name_server_2
+  become: true
+  gather_facts: true
+  roles:
+    - web
+
+- name: Deploy first site
+  hosts: tags_Name_server_1
+  become: true
+  gather_facts: true
+  roles:
+    - server1
+
+- name: Deploy Second site
+  hosts: tags_Name_server_2
+  become: true
+  gather_facts: true
+  roles:
+    - server2
