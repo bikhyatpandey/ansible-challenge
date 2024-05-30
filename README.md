@@ -17,7 +17,8 @@
    vault_password_file: /file/location/filename.txt
 9. Run ansible-galaxy collection install -r collections/requirements.yml
 10. Run ansible-playbook site.yml
+11. Once the playbook run is completed, access the sites using public IPs of both devices. One server is for Memory game and another is ant colony.
 
 # Key points to remember:
-Please make sure you delete the key pair from both aws and ansible-challenge folder if you have to re run the playbook. Also, please make sure you delete your resources once you've completed testing the playbook.
+Please make sure you delete the ssh key file from both aws and ansible-challenge folder if you have to re run the playbook. Also, please make sure you delete your resources once you've completed testing the playbook.
 This playbook has been tested using macbook and is completely functional
