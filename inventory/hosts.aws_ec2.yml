@@ -6,3 +6,4 @@ filters:
 keyed_groups:
   - key: tags.Name
     prefix: tags_Name
+ansible_ssh_key_file: ./ansible_key.pem
