@@ -13,7 +13,8 @@
    aws_access_key: "Your access key"
    aws_secret_key: "Your secret key:
    :wq!
-8. Create a new file named vault_pass.txt in ~/.ansible/ folder and enter the password you used to create the vault file
+8. Create a new file named vault_pass.txt in ~/.ansible/ folder and enter the password you used to create the vault file. You can store it elsewhere but please specify/change the location in ansible.cfg file under "vault_password_file"
+   vault_password_file: /file/location/filename.txt
 9. Run ansible-galaxy collection install -r collections/requirements.yml
 10. Run ansible-playbook site.yml
 
